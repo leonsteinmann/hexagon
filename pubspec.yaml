@@ -33,6 +33,10 @@ dependencies:
   # GameEngine
   flame: 1.0.0
 
+  # Packages
+  shared_preferences: 2.0.11
+  google_fonts: 2.1.1
+
   # iOS specific
   cupertino_icons: ^1.0.2
 
@@ -46,3 +50,31 @@ flutter:
   assets:
     - assets/images/profile.png
     - assets/images/spot.png
+    - assets/images/score_background.png
+    - assets/images/123.png
+    - assets/images/124.png
+    - assets/images/128.png
+    - assets/images/163.png
+    - assets/images/164.png
+    - assets/images/168.png
+    - assets/images/173.png
+    - assets/images/174.png
+    - assets/images/178.png
+    - assets/images/523.png
+    - assets/images/524.png
+    - assets/images/528.png
+    - assets/images/563.png
+    - assets/images/564.png
+    - assets/images/568.png
+    - assets/images/573.png
+    - assets/images/574.png
+    - assets/images/578.png
+    - assets/images/923.png
+    - assets/images/924.png
+    - assets/images/928.png
+    - assets/images/963.png
+    - assets/images/964.png
+    - assets/images/968.png
+    - assets/images/973.png
+    - assets/images/974.png
+    - assets/images/978.png

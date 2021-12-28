@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:math';
 
 import 'package:flame/components.dart';
@@ -6,35 +7,44 @@ import 'package:flame/geometry.dart';
 import 'package:flame/input.dart';
 import 'package:flame/palette.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:take_it_easy_flutter/components/scorecard_comp.dart';
 import 'package:take_it_easy_flutter/components/spot_comp.dart';
+import 'package:take_it_easy_flutter/components/stone_comp.dart';
 
 import 'components/board_comp.dart';
 import 'models/board.dart';
 import 'models/pool.dart';
 import 'models/stone.dart';
+import 'palettes.dart';
 
 class MainGame extends FlameGame with HasTappables{
-  // Class instances
+  // States
   Board boardState = Board({});
   Pool poolState = Pool([]);
+  Stone drawnStone;
+  int score;
+  int highScore;
+  int turn;
+  bool gamePaused;
 
   @override
-  bool debugMode = true;
+  bool debugMode = false;
 
   @override
   backgroundColor() {
     return const Color(0xFFD8B26E);
   }
-  // Game components
-  Stone drawnStone;
-  int score;
 
   // Components
-  SpotComp spot0, spot1, spot2, spot3, spot4, spot5, spot6, spot7, spot8, spot9, spot10, spot11, spot12, spot13, spot14, spot15, spot16, spot17, spot18;
+  BoardComp boardComp;
+  StoneComp drawnStoneComp;
+  ScorecardComp currScoreComp;
+  ScorecardComp highScoreComp;
 
-  TextComponent currStone;
-  TextComponent currScore;
-
+  Sprite nineSixEightSprite;
+  Sprite spotSprite;
   // Numbers for vertical, rising, falling rows on stones
   List<int> vStoneNumbers = [1,5,9];
   List<int> rStoneNumbers = [2,6,7];
@@ -48,72 +58,39 @@ class MainGame extends FlameGame with HasTappables{
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    final width = canvasSize.x;
-    final height = canvasSize.y;
-    final spotSize = width/6;
-    final spotPaddingV = spotSize/4;
-    final spotSprite = await Sprite.load('spot.png');
-
-    addSpots(width, height, spotSize, spotPaddingV, spotSprite);
-
-    add(currStone = TextComponent(text: "Current Drawn Stone:")
-      ..anchor = Anchor.topRight
-      ..x = width
-      ..y = 100.0);
-    add(currScore= TextComponent(text: "Current Drawn Stone:")
-      ..anchor = Anchor.topLeft
-      ..x = 0 // size is a property from game
-      ..y = 100.0);
-
     createGame();
     drawStone();
+
+    final width = canvasSize.x;
+    final height = canvasSize.y;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    highScore = prefs.getInt("highScore");
+    spotSprite = await Sprite.load('spot.png');
+
+    add(boardComp = BoardComp(Vector2(width/2+25, height-100), Vector2(width,width)));
+    add(drawnStoneComp = StoneComp(Vector2(width/2, 100), Vector2(150,150), spotSprite, 1)
+      ..anchor = Anchor.topCenter
+    );
+    add(currScoreComp = ScorecardComp(Vector2(width, 50), Vector2(50,50), 1, Anchor.topRight, score, "currently"));
+    add(highScoreComp = ScorecardComp(Vector2(50, 50), Vector2(50,50), 1, Anchor.topLeft, score, "highscore"));
   }
 
-  @override
-  void update(double dt) {
-    super.update(dt);
-    currStone.text = "Stone: \n" + drawnStone.vertical.toString() + drawnStone.rising.toString() + drawnStone.falling.toString();
-    currScore.text = "Score: \n" + score.toString();
-  }
 
   @override
   Future<void> render(Canvas canvas) async {
     super.render(canvas);
-    /*for (var spot in boardState.spots.keys) {
-      if (boardState.spots[spot] != null) {
-        spot0.sprite = await Sprite.load('profile.png');
-      }
-    }
+    await renderBoardStones();
+    await renderDrawnStone();
+    currScoreComp.scoreComp.text = score.toString();
+    highScoreComp.scoreComp.text = highScore.toString();
 
-    if (boardState.spots[0] != null) {
-      spot0.sprite = await Sprite.load('profile.png');
-    }*/
   }
 
-  void addSpots(double width, double height, double spotSize, double spotPaddingV, Sprite spotSprite) {
-    add(spot0 = SpotComp(Vector2(width/2,height/2-(spotSize+spotPaddingV)*2), Vector2(spotSize*1.5,spotSize*1.5), spotSprite, 1, 0));
-    add(spot1 = SpotComp(Vector2(width/2-spotSize,height/2-(spotSize+spotPaddingV)*1.5), Vector2(spotSize*1.5,spotSize*1.5), spotSprite, 1, 1));
-    add(spot2 = SpotComp(Vector2(width/2+spotSize,height/2-(spotSize+spotPaddingV)*1.5), Vector2(spotSize*1.5,spotSize*1.5), spotSprite, 1, 2));
-    add(spot3 = SpotComp(Vector2(width/2-spotSize*2,height/2-(spotSize+spotPaddingV)*1), Vector2(spotSize*1.5,spotSize*1.5), spotSprite, 1, 3));
-    add(spot4 = SpotComp(Vector2(width/2,height/2-(spotSize+spotPaddingV)*1), Vector2(spotSize*1.5,spotSize*1.5), spotSprite, 1, 4));
-    add(spot5 = SpotComp(Vector2(width/2+spotSize*2,height/2-(spotSize+spotPaddingV)*1), Vector2(spotSize*1.5,spotSize*1.5), spotSprite, 1, 5));
-    add(spot6 = SpotComp(Vector2(width/2-spotSize,height/2-(spotSize+spotPaddingV)*0.5), Vector2(spotSize*1.5,spotSize*1.5), spotSprite, 1, 6));
-    add(spot7 = SpotComp(Vector2(width/2+spotSize,height/2-(spotSize+spotPaddingV)*0.5), Vector2(spotSize*1.5,spotSize*1.5), spotSprite, 1, 7));
-    add(spot8 = SpotComp(Vector2(width/2-spotSize*2,height/2-(spotSize+spotPaddingV)*0), Vector2(spotSize*1.5,spotSize*1.5), spotSprite, 1, 8));
-    add(spot9 = SpotComp(Vector2(width/2,height/2-(spotSize+spotPaddingV)*0), Vector2(spotSize*1.5,spotSize*1.5), spotSprite, 1, 9));
-    add(spot10 = SpotComp(Vector2(width/2+spotSize*2,height/2-(spotSize+spotPaddingV)*0), Vector2(spotSize*1.5,spotSize*1.5), spotSprite, 1, 10));
-    add(spot11 = SpotComp(Vector2(width/2-spotSize,height/2-(spotSize+spotPaddingV)*-0.5), Vector2(spotSize*1.5,spotSize*1.5), spotSprite, 1, 11));
-    add(spot12 = SpotComp(Vector2(width/2+spotSize,height/2-(spotSize+spotPaddingV)*-0.5), Vector2(spotSize*1.5,spotSize*1.5), spotSprite, 1, 12));
-    add(spot13 = SpotComp(Vector2(width/2-spotSize*2,height/2-(spotSize+spotPaddingV)*-1), Vector2(spotSize*1.5,spotSize*1.5), spotSprite, 1, 13));
-    add(spot14 = SpotComp(Vector2(width/2,height/2-(spotSize+spotPaddingV)*-1), Vector2(spotSize*1.5,spotSize*1.5), spotSprite, 1, 14));
-    add(spot15 = SpotComp(Vector2(width/2+spotSize*2,height/2-(spotSize+spotPaddingV)*-1), Vector2(spotSize*1.5,spotSize*1.5), spotSprite, 1, 15));
-    add(spot16 = SpotComp(Vector2(width/2-spotSize,height/2-(spotSize+spotPaddingV)*-1.5), Vector2(spotSize*1.5,spotSize*1.5), spotSprite, 1, 16));
-    add(spot17 = SpotComp(Vector2(width/2+spotSize,height/2-(spotSize+spotPaddingV)*-1.5), Vector2(spotSize*1.5,spotSize*1.5), spotSprite, 1, 17));
-    add(spot18 = SpotComp(Vector2(width/2,height/2-(spotSize+spotPaddingV)*-2), Vector2(spotSize*1.5,spotSize*1.5), spotSprite, 1, 18));
-  }
-
-
-  createGame() {
+  createGame() async {
+    // reset counters
+    score = 0;
+    turn = 0;
+    checkNewHighScore();
     // create spots on board
     for (var spot = 0; spot <= 18; spot++) {
       boardState.spots[spot] = null;
@@ -122,10 +99,18 @@ class MainGame extends FlameGame with HasTappables{
     for (var vNum in vStoneNumbers) {
       for (var rNum in rStoneNumbers) {
         for (var fNum in fStoneNumbers) {
-          poolState.stonePool.add(Stone(vNum,rNum,fNum));
+          poolState.stonePool.add(Stone(vNum,fNum,rNum));
         }
       }
     }
+
+  }
+
+
+  endGame() async {
+    //TODO - save high score
+    await checkNewHighScore();
+    createGame();
   }
 
   drawStone() {
@@ -133,12 +118,8 @@ class MainGame extends FlameGame with HasTappables{
     Random rnd = Random();
     int drawPos = rnd.nextInt(poolState.stonePool.length);
     // draw random Stone and remove it from Pool
-    //print("Anzahl an Steinen vor Ziehen: " + poolState.stonePool.length.toString());
     drawnStone = poolState.stonePool[drawPos];
     poolState.stonePool.removeAt(drawPos);
-    //print("Anzahl an Steinen nach Ziehen: " + poolState.stonePool.length.toString());
-    //print("Gezogener Stein: " + drawnStone.vertical.toString() + drawnStone.rising.toString() + drawnStone.falling.toString());
-
   }
 
   placeStone(int spot) {
@@ -146,10 +127,15 @@ class MainGame extends FlameGame with HasTappables{
       boardState.spots[spot] = drawnStone;
       drawStone();
       print(boardState.spots);
+      countPoints();
+      turn = turn + 1;
+      print("turn $turn");
     } else {
       print("Hier liegt schon ein Stein");
     }
-    countPoints();
+    if (turn >= 19) {
+      endGame();
+    }
   }
 
   countPoints() {
@@ -157,6 +143,20 @@ class MainGame extends FlameGame with HasTappables{
     // count vertical rows
     score = countVPoints() + countRPoints() + countFPoints();
     print("current pints: $score");
+  }
+
+  checkNewHighScore() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int oldScore = prefs.getInt("highScore");
+    print("Old Highscore: $oldScore");
+    if (oldScore == null) {
+      await prefs.setInt("highScore", 0);
+    }
+    if (oldScore < score) {
+      await prefs.setInt("highScore", score);
+      highScore = score;
+      print("New Highscore: $highScore");
+    }
   }
 
   int countVPoints() {
@@ -174,13 +174,11 @@ class MainGame extends FlameGame with HasTappables{
       }
       // check how often vNumbers[0] occurred in list of vertical numbers in that row
       int sameNumOccurrence = vNumbers.map((element) => element == vNumbers[0] ? 1 : 0).reduce((value, element) => value + element);
-      print("the number: ${vNumbers[0]}, occurred: $sameNumOccurrence times, in a row with ${vRow.length} spots");
       // if row contains only of vNumbers[0] --> update vpoints
       if (sameNumOccurrence == vRow.length) {
         vPoints = vPoints + (vNumbers[0] * sameNumOccurrence);
       }
     }
-    print("vertical points added: $vPoints");
     return vPoints;
   }
 
@@ -220,8 +218,28 @@ class MainGame extends FlameGame with HasTappables{
     return fPoints;
   }
 
-  endGame() {
-    //TODO - save high score
+  getImageSource(Stone spot) {
+    return "stones/${spot.vertical.toString() + spot.falling.toString() + spot.rising.toString()}.png";
   }
 
+  Future<void> renderDrawnStone() async {
+    if (drawnStone != null) {
+      var imageSource = getImageSource(drawnStone);
+      drawnStoneComp.sprite = await Sprite.load(imageSource);
+    } else {
+      //TODO create a play menu
+    }
+
+  }
+
+  Future<void> renderBoardStones() async {
+    for (var spot in boardState.spots.keys) {
+      if (boardState.spots[spot] != null) {
+        var imageSource = getImageSource(boardState.spots[spot]);
+        boardComp.spotComps[spot].sprite = await Sprite.load(imageSource);
+      } else {
+        boardComp.spotComps[spot].sprite = spotSprite;
+      }
+    }
+  }
 }

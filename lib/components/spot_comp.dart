@@ -30,15 +30,3 @@ class SpotComp extends SpriteComponent with Tappable, HasHitboxes, HasGameRef<Ma
   }
 
 }
-
-/*class SpotCompHex extends PolygonComponent {
-
-  SpotCompHex(Vector2 position, Vector2 size, Paint paint, int priority) {
-    this.position = position;
-    this.size = size;
-    this.paint = paint;
-    //this.priority = priority;
-  }
-
-}*/
-
