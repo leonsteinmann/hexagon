@@ -11,12 +11,11 @@ import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:take_it_easy_flutter/components/menu_button_comp.dart';
-import 'package:take_it_easy_flutter/components/scorecard_comp.dart';
-import 'package:take_it_easy_flutter/components/spot_comp.dart';
-import 'package:take_it_easy_flutter/components/stone_comp.dart';
 
 import 'components/board_comp.dart';
+import 'components/menu_button_comp.dart';
+import 'components/scorecard_comp.dart';
+import 'components/stone_comp.dart';
 import 'models/board.dart';
 import 'models/pool.dart';
 import 'models/stone.dart';

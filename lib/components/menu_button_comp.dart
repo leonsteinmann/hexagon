@@ -4,9 +4,9 @@ import 'package:flame/input.dart';
 import 'package:flame/src/geometry/shape.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:take_it_easy_flutter/single_player.dart';
 
 import '../palettes.dart';
+import '../single_player.dart';
 
 
 class MenuButtonComp extends PositionComponent with Tappable, HasGameRef<SinglePlayer>{

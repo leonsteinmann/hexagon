@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:take_it_easy_flutter/palettes.dart';
 
+import '../palettes.dart';
 import '../provider.dart';
 import '../single_player.dart';
 

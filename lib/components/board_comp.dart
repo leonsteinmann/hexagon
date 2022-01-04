@@ -1,5 +1,4 @@
 import 'package:flame/components.dart';
-import 'package:take_it_easy_flutter/models/stone.dart';
 
 import '../single_player.dart';
 import 'spot_comp.dart';

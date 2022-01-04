@@ -1,15 +1,10 @@
-import 'dart:ffi';
-
 import 'package:flame/components.dart';
-import 'package:flame/geometry.dart';
 import 'package:flame/input.dart';
-import 'package:flame/src/geometry/shape.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:take_it_easy_flutter/single_player.dart';
 
 import '../palettes.dart';
+import '../single_player.dart';
 
 
 class StoneComp extends SpriteComponent with HasGameRef<SinglePlayer>{

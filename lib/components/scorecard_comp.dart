@@ -1,11 +1,11 @@
 import 'package:flame/components.dart';
-import 'package:flame/geometry.dart';
 import 'package:flame/input.dart';
-import 'package:flame/src/geometry/shape.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:take_it_easy_flutter/single_player.dart';
-import 'package:take_it_easy_flutter/palettes.dart';
+
+import '../palettes.dart';
+import '../single_player.dart';
+
 
 
 class ScorecardComp extends PositionComponent with HasGameRef<SinglePlayer>{
