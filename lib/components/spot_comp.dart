@@ -1,14 +1,12 @@
-import 'dart:ffi';
-
 import 'package:flame/components.dart';
 import 'package:flame/geometry.dart';
 import 'package:flame/input.dart';
 import 'package:flame/src/geometry/shape.dart';
 import 'package:flutter/material.dart';
-import 'package:take_it_easy_flutter/game.dart';
+import 'package:take_it_easy_flutter/single_player.dart';
 
 
-class SpotComp extends SpriteComponent with Tappable, HasHitboxes, HasGameRef<MainGame>{
+class SpotComp extends SpriteComponent with Tappable, HasHitboxes, HasGameRef<SinglePlayer>{
   int spotNum;
 
   SpotComp(Vector2 position, Vector2 size, Sprite sprite, int priority, this.spotNum) {
@@ -24,7 +22,6 @@ class SpotComp extends SpriteComponent with Tappable, HasHitboxes, HasGameRef<Ma
 
   @override
   bool onTapUp(TapUpInfo event) {
-    print("tap up on Spot: $spotNum");
     gameRef.placeStone(spotNum);
     return true;
   }

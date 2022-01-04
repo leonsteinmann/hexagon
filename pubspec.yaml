@@ -32,10 +32,12 @@ dependencies:
 
   # GameEngine
   flame: 1.0.0
+  flame_audio: 1.0.0
 
   # Packages
   shared_preferences: 2.0.11
   google_fonts: 2.1.1
+  provider: 6.0.2
 
   # iOS specific
   cupertino_icons: ^1.0.2
@@ -51,6 +53,14 @@ flutter:
     - assets/images/profile.png
     - assets/images/spot.png
     - assets/images/score_background.png
+    - assets/images/menu_background.png
+    - assets/images/cancel.png
+
+  # audio
+    - assets/audio/place_stone.mp3
+    - assets/audio/illegal_stone.mp3
+    - assets/audio/background_music.mp3
+  # stones
     - assets/images/123.png
     - assets/images/124.png
     - assets/images/128.png
